@@ -244,7 +244,7 @@ public class CustomAliasX509ExtendedKeyManagerTest {
         final KeyStore clientKeyStore = KeyStore.getInstance("JKS");
         clientKeyStore.load(null, null);
         clientKeyStore.setKeyEntry("clientcert-1", clientCertificateGenerator.getPrivateKey(), EMPTY_PASSWORD, new Certificate[]{clientCert});
-//        clientKeyStore.setKeyEntry("clientCert-2", clientCertificateGenerator2.getPrivateKey(), EMPTY_PASSWORD, new Certificate[]{clientCert2});
+        clientKeyStore.setKeyEntry("clientCert-2", clientCertificateGenerator2.getPrivateKey(), EMPTY_PASSWORD, new Certificate[]{clientCert2});
 
         final KeyStore clientTrustStore = KeyStore.getInstance("JKS");
         clientTrustStore.load(null, null);
@@ -313,8 +313,6 @@ public class CustomAliasX509ExtendedKeyManagerTest {
 
         public void sendMessage(final String host, final int port, final String message) {
             try (final SSLSocket socket = (SSLSocket) socketFactory.createSocket(host, port)) {
-//                socket.setEnabledProtocols(
-//                        new String[] { "TLSv1.2" });
                 socket.setUseClientMode(true);
                 socket.startHandshake();
                 final OutputStream out = socket.getOutputStream();
@@ -364,9 +362,7 @@ public class CustomAliasX509ExtendedKeyManagerTest {
         public void start(final Integer port, final BiConsumer<String, Throwable> afterMessageConsumed) {
             try {
                 final SSLServerSocket sslSocket = (SSLServerSocket) serverSocketFactory.createServerSocket(port);
-                sslSocket.setNeedClientAuth(isClientAuthenticationRequired);
-//                sslSocket.setEnabledProtocols(
-//                        new String[] { "TLSv1.2" });
+                sslSocket.setNeedClientAuth(isClientAuthenticationRequired);;
                 activePort = sslSocket.getLocalPort();
                 CompletableFuture
                         .supplyAsync(

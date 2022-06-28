@@ -15,6 +15,7 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509ExtendedKeyManager;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -68,8 +69,10 @@ public class CustomAliasX509ExtendedKeyManagerTest {
 
         sslClient.sendMessage("localhost", sslServer.activePort, "Hello");
 
+        //noinspection ResultOfMethodCallIgnored
         latch.await(10, TimeUnit.SECONDS);
         executorService.shutdown();
+        //noinspection ResultOfMethodCallIgnored
         executorService.awaitTermination(10, TimeUnit.SECONDS);
 
         assertEquals("Hello", resultHolder.get());
@@ -105,8 +108,10 @@ public class CustomAliasX509ExtendedKeyManagerTest {
 
         sslClient.sendMessage("localhost", sslServer.activePort, "Hello");
 
+        //noinspection ResultOfMethodCallIgnored
         latch.await(10, TimeUnit.SECONDS);
         executorService.shutdown();
+        //noinspection ResultOfMethodCallIgnored
         executorService.awaitTermination(10, TimeUnit.SECONDS);
 
         assertEquals("javax.net.ssl.SSLHandshakeException: Empty client certificate chain", resultHolder.get().getCause().getCause().toString());
@@ -154,8 +159,10 @@ public class CustomAliasX509ExtendedKeyManagerTest {
 
         sslClient.sendMessage("localhost", sslServer.activePort, "Hello");
 
+        //noinspection ResultOfMethodCallIgnored
         latch.await(10, TimeUnit.SECONDS);
         executorService.shutdown();
+        //noinspection ResultOfMethodCallIgnored
         executorService.awaitTermination(10, TimeUnit.SECONDS);
 
         assertEquals("Hello", resultHolder.get());
@@ -209,8 +216,10 @@ public class CustomAliasX509ExtendedKeyManagerTest {
 
         sslClient.sendMessage("localhost", sslServer.activePort, "Hello");
 
+        //noinspection ResultOfMethodCallIgnored
         latch.await(10, TimeUnit.SECONDS);
         executorService.shutdown();
+        //noinspection ResultOfMethodCallIgnored
         executorService.awaitTermination(10, TimeUnit.SECONDS);
 
         assertEquals("javax.net.ssl.SSLHandshakeException: PKIX path validation failed: java.security.cert.CertPathValidatorException: signature check failed", resultHolder.get().getCause().getCause().toString());
@@ -267,8 +276,10 @@ public class CustomAliasX509ExtendedKeyManagerTest {
 
         sslClient.sendMessage("localhost", sslServer.activePort, "Hello");
 
+        //noinspection ResultOfMethodCallIgnored
         latch.await(10, TimeUnit.SECONDS);
         executorService.shutdown();
+        //noinspection ResultOfMethodCallIgnored
         executorService.awaitTermination(10, TimeUnit.SECONDS);
 
         assertEquals("Hello", messageHolder.get(), () -> { throw new RuntimeException(exceptionHolder.get()); });
@@ -361,8 +372,18 @@ public class CustomAliasX509ExtendedKeyManagerTest {
 
         public void start(final Integer port, final BiConsumer<String, Throwable> afterMessageConsumed) {
             try {
+                @SuppressWarnings("resource")
                 final SSLServerSocket sslSocket = (SSLServerSocket) serverSocketFactory.createServerSocket(port);
-                sslSocket.setNeedClientAuth(isClientAuthenticationRequired);;
+                sslSocket.setNeedClientAuth(isClientAuthenticationRequired);
+
+                Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                    try {
+                        sslSocket.close();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }));
+
                 activePort = sslSocket.getLocalPort();
                 CompletableFuture
                         .supplyAsync(
@@ -392,7 +413,6 @@ public class CustomAliasX509ExtendedKeyManagerTest {
     public static class CertificateGenerator {
 
         private final CertAndKeyGen certAndKeyGen;
-        private final long validSecs = (long) 365 * 24 * 60 * 60; // valid for one year
 
         public CertificateGenerator() {
             try {
@@ -405,6 +425,8 @@ public class CustomAliasX509ExtendedKeyManagerTest {
 
         public X509Certificate generateSelfSignedCertificate(final String certDetails) {
             try {
+                // valid for one year
+                final long validSecs = (long) 365 * 24 * 60 * 60;
                 return certAndKeyGen.getSelfCertificate(
                         // enter your details according to your application
                         new X500Name(certDetails), validSecs);

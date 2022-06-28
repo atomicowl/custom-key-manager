@@ -60,10 +60,11 @@ public class CustomAliasX509ExtendedKeyManagerTest {
         final SslServer sslServer = new SslServer(serverKeyStore, emptyKeyStore, executorService, false);
         final SslClient sslClient = new SslClient(emptyKeyStore, clientTrustStore, null);
 
-        final AtomicReference<String> resultHolder = new AtomicReference<>();
+        final AtomicReference<Result<String>> resultHolder = new AtomicReference<>();
         final CountDownLatch latch = new CountDownLatch(1);
+
         sslServer.start(0, (String message, Throwable ex) -> {
-            resultHolder.set(message);
+            resultHolder.set(new Result<>(message, ex));
             latch.countDown();
         });
 
@@ -75,7 +76,7 @@ public class CustomAliasX509ExtendedKeyManagerTest {
         //noinspection ResultOfMethodCallIgnored
         executorService.awaitTermination(10, TimeUnit.SECONDS);
 
-        assertEquals("Hello", resultHolder.get());
+        assertEquals("Hello", resultHolder.get().getSuccessOrThrowException());
     }
 
     @Test
@@ -99,10 +100,11 @@ public class CustomAliasX509ExtendedKeyManagerTest {
         final SslServer sslServer = new SslServer(serverKeyStore, emptyKeyStore, executorService, true);
         final SslClient sslClient = new SslClient(emptyKeyStore, clientTrustStore, null);
 
-        final AtomicReference<Throwable> resultHolder = new AtomicReference<>();
+        final AtomicReference<Result<String>> resultHolder = new AtomicReference<>();
         final CountDownLatch latch = new CountDownLatch(1);
-        sslServer.start(0, (String message, Throwable throwable) -> {
-            resultHolder.set(throwable);
+
+        sslServer.start(0, (String message, Throwable ex) -> {
+            resultHolder.set(new Result<>(message, ex));
             latch.countDown();
         });
 
@@ -114,7 +116,8 @@ public class CustomAliasX509ExtendedKeyManagerTest {
         //noinspection ResultOfMethodCallIgnored
         executorService.awaitTermination(10, TimeUnit.SECONDS);
 
-        assertEquals("javax.net.ssl.SSLHandshakeException: Empty client certificate chain", resultHolder.get().getCause().getCause().toString());
+        assertEquals("javax.net.ssl.SSLHandshakeException: Empty client certificate chain",
+                resultHolder.get().getError().getCause().getCause().toString());
     }
 
     @Test
@@ -150,10 +153,11 @@ public class CustomAliasX509ExtendedKeyManagerTest {
         final SslServer sslServer = new SslServer(serverKeyStore, serverTrustStore, executorService, true);
         final SslClient sslClient = new SslClient(clientKeyStore, clientTrustStore, null);
 
-        final AtomicReference<String> resultHolder = new AtomicReference<>();
+        final AtomicReference<Result<String>> resultHolder = new AtomicReference<>();
         final CountDownLatch latch = new CountDownLatch(1);
-        sslServer.start(0, (String message, Throwable throwable) -> {
-            resultHolder.set(message);
+
+        sslServer.start(0, (String message, Throwable ex) -> {
+            resultHolder.set(new Result<>(message, ex));
             latch.countDown();
         });
 
@@ -165,7 +169,7 @@ public class CustomAliasX509ExtendedKeyManagerTest {
         //noinspection ResultOfMethodCallIgnored
         executorService.awaitTermination(10, TimeUnit.SECONDS);
 
-        assertEquals("Hello", resultHolder.get());
+        assertEquals("Hello", resultHolder.get().getSuccessOrThrowException());
     }
 
     @Test
@@ -207,10 +211,11 @@ public class CustomAliasX509ExtendedKeyManagerTest {
         final SslServer sslServer = new SslServer(serverKeyStore, serverTrustStore, executorService, true);
         final SslClient sslClient = new SslClient(clientKeyStore, clientTrustStore, null);
 
-        final AtomicReference<Throwable> resultHolder = new AtomicReference<>();
+        final AtomicReference<Result<String>> resultHolder = new AtomicReference<>();
         final CountDownLatch latch = new CountDownLatch(1);
-        sslServer.start(0, (String message, Throwable throwable) -> {
-            resultHolder.set(throwable);
+
+        sslServer.start(0, (String message, Throwable ex) -> {
+            resultHolder.set(new Result<>(message, ex));
             latch.countDown();
         });
 
@@ -222,7 +227,8 @@ public class CustomAliasX509ExtendedKeyManagerTest {
         //noinspection ResultOfMethodCallIgnored
         executorService.awaitTermination(10, TimeUnit.SECONDS);
 
-        assertEquals("javax.net.ssl.SSLHandshakeException: PKIX path validation failed: java.security.cert.CertPathValidatorException: signature check failed", resultHolder.get().getCause().getCause().toString());
+        assertEquals("javax.net.ssl.SSLHandshakeException: PKIX path validation failed: java.security.cert.CertPathValidatorException: signature check failed",
+                resultHolder.get().getError().getCause().getCause().toString());
     }
 
     @Test
@@ -264,13 +270,11 @@ public class CustomAliasX509ExtendedKeyManagerTest {
         final SslServer sslServer = new SslServer(serverKeyStore, serverTrustStore, executorService, true);
         final SslClient sslClient = new SslClient(clientKeyStore, clientTrustStore, "clientcert-1");
 
-        final AtomicReference<String> messageHolder = new AtomicReference<>();
-        final AtomicReference<Throwable> exceptionHolder = new AtomicReference<>();
+        final AtomicReference<Result<String>> resultHolder = new AtomicReference<>();
         final CountDownLatch latch = new CountDownLatch(1);
 
-        sslServer.start(0, (String message, Throwable throwable) -> {
-            messageHolder.set(message);
-            exceptionHolder.set(throwable);
+        sslServer.start(0, (String message, Throwable ex) -> {
+            resultHolder.set(new Result<>(message, ex));
             latch.countDown();
         });
 
@@ -282,7 +286,7 @@ public class CustomAliasX509ExtendedKeyManagerTest {
         //noinspection ResultOfMethodCallIgnored
         executorService.awaitTermination(10, TimeUnit.SECONDS);
 
-        assertEquals("Hello", messageHolder.get(), () -> { throw new RuntimeException(exceptionHolder.get()); });
+        assertEquals("Hello", resultHolder.get().getSuccessOrThrowException());
     }
 
     public class SslClient {
@@ -437,6 +441,29 @@ public class CustomAliasX509ExtendedKeyManagerTest {
 
         public PrivateKey getPrivateKey() {
             return certAndKeyGen.getPrivateKey();
+        }
+    }
+
+    public static class Result<SUCCESS> {
+
+        private final SUCCESS success;
+
+        private final Throwable error;
+
+        public Result(final SUCCESS success, final Throwable error) {
+            this.success = success;
+            this.error = error;
+        }
+
+        public SUCCESS getSuccessOrThrowException() {
+            if (error != null) {
+                throw new RuntimeException(error);
+            }
+            return success;
+        }
+
+        public Throwable getError() {
+            return error;
         }
     }
 }

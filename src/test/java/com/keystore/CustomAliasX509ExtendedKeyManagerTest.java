@@ -276,7 +276,7 @@ public class CustomAliasX509ExtendedKeyManagerTest {
 
     public class SslClient {
 
-        private SSLSocketFactory socketFactory;
+        private final SSLSocketFactory socketFactory;
 
         public SslClient(
                 final KeyStore keyStore,
@@ -284,13 +284,13 @@ public class CustomAliasX509ExtendedKeyManagerTest {
                 final String clientCertAlias
         ) {
             try {
-                KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+                final KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
                 keyManagerFactory.init(keyStore, EMPTY_PASSWORD);
 
-                TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+                final TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
                 trustManagerFactory.init(trustStore);
 
-                SSLContext serverSslContext = SSLContext.getInstance("TLS");
+                final SSLContext serverSslContext = SSLContext.getInstance("TLS");
                 if (clientCertAlias == null) {
                     serverSslContext.init(keyManagerFactory.getKeyManagers(), trustManagerFactory.getTrustManagers(), new SecureRandom());
                 } else {
@@ -344,13 +344,13 @@ public class CustomAliasX509ExtendedKeyManagerTest {
             this.isClientAuthenticationRequired = isClientAuthenticationRequired;
 
             try {
-                KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+                final KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
                 keyManagerFactory.init(keyStore, EMPTY_PASSWORD);
 
-                TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+                final TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
                 trustManagerFactory.init(trustStore);
 
-                SSLContext serverSslContext = SSLContext.getInstance("TLS");
+                final SSLContext serverSslContext = SSLContext.getInstance("TLS");
                 serverSslContext.init(keyManagerFactory.getKeyManagers(), trustManagerFactory.getTrustManagers(), new SecureRandom());
 
                 this.serverSocketFactory = serverSslContext.getServerSocketFactory();
@@ -392,7 +392,7 @@ public class CustomAliasX509ExtendedKeyManagerTest {
     public static class CertificateGenerator {
 
         private final CertAndKeyGen certAndKeyGen;
-        long validSecs = (long) 365 * 24 * 60 * 60; // valid for one year
+        private final long validSecs = (long) 365 * 24 * 60 * 60; // valid for one year
 
         public CertificateGenerator() {
             try {

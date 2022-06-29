@@ -8,7 +8,7 @@ Client sends the latest added certificate in keystore to the server
 
 Cases:
 
-- If there are **single** certificate in client's keystore -> authentication would work until new certificate is added
+- If there is **single** certificate in client's keystore -> authentication would work until new certificate is added
 - If there are **multiple** certificates in client's keystore -> we need to tell explicitly which certificate should be used for ssl connection
 
 # Solution

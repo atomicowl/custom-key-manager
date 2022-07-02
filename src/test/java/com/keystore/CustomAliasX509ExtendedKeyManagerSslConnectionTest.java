@@ -1,5 +1,6 @@
 package com.keystore;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import sun.security.tools.keytool.CertAndKeyGen;
 import sun.security.x509.X500Name;
@@ -34,6 +35,7 @@ import java.util.function.BiConsumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@Tag("INTEGRATION_TEST")
 public class CustomAliasX509ExtendedKeyManagerSslConnectionTest {
 
     private final CertificateGenerator serverCertificateGenerator = new CertificateGenerator();

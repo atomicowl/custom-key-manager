@@ -2,12 +2,15 @@ package com.keystore;
 
 import javax.net.ssl.X509ExtendedKeyManager;
 import java.net.Socket;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.Principal;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 
 public class CustomAliasX509ExtendedKeyManager extends X509ExtendedKeyManager {
 
+    private final KeyStore keyStore;
     private final X509ExtendedKeyManager delegate;
 
     private final String clientAlias;
@@ -15,10 +18,12 @@ public class CustomAliasX509ExtendedKeyManager extends X509ExtendedKeyManager {
     private final String serverAlias;
 
     public CustomAliasX509ExtendedKeyManager(
+            final KeyStore keyStore,
             final X509ExtendedKeyManager delegate,
             final String clientAlias,
             final String serverAlias
     ) {
+        this.keyStore = keyStore;
         this.delegate = delegate;
         this.clientAlias = clientAlias;
         this.serverAlias = serverAlias;
@@ -31,11 +36,14 @@ public class CustomAliasX509ExtendedKeyManager extends X509ExtendedKeyManager {
 
     @Override
     public String chooseClientAlias(final String[] keyType, final Principal[] issuers, final Socket socket) {
-        final String clientAliasFromKeyStore = delegate.chooseClientAlias(keyType, issuers, socket);
-        if (clientAliasFromKeyStore != null && clientAlias != null) {
-            return clientAlias;
+        try {
+            if (keyStore.containsAlias(clientAlias)) {
+                return clientAlias;
+            }
+        } catch (KeyStoreException e) {
+            throw new RuntimeException(e);
         }
-        return clientAliasFromKeyStore;
+        throw new RuntimeException("certificate with alias " + clientAlias + " not found");
     }
 
     @Override
@@ -45,11 +53,14 @@ public class CustomAliasX509ExtendedKeyManager extends X509ExtendedKeyManager {
 
     @Override
     public String chooseServerAlias(final String keyType, final Principal[] issuers, final Socket socket) {
-        final String serverAliasFromKeyStore = delegate.chooseServerAlias(keyType, issuers, socket);
-        if (serverAliasFromKeyStore != null && serverAlias != null) {
-            return serverAlias;
+        try {
+            if (keyStore.containsAlias(serverAlias)) {
+                return serverAlias;
+            }
+        } catch (KeyStoreException e) {
+            throw new RuntimeException(e);
         }
-        return serverAliasFromKeyStore;
+        throw new RuntimeException("certificate with alias " + serverAlias + " not found");
     }
 
     @Override

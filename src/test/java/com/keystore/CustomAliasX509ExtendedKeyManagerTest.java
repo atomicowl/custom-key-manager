@@ -21,6 +21,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -84,6 +85,31 @@ class CustomAliasX509ExtendedKeyManagerTest {
     }
 
     @Test
+    void chooseClientAlias_throws_exception_if_keystore_is_not_initialized() throws Exception {
+        final KeyStore keyStore = mock(KeyStore.class);
+
+        doThrow(new RuntimeException("keystore uninitialized"))
+                .when(keyStore).containsAlias("client-cert-1");
+
+        final X509ExtendedKeyManager x509KeyManager = mock(X509ExtendedKeyManager.class);
+        when(x509KeyManager.chooseEngineClientAlias(any(), any(), any())).thenReturn("client-cert-1");
+
+
+        final CustomAliasX509ExtendedKeyManager customAliasX509ExtendedKeyManager =
+                new CustomAliasX509ExtendedKeyManager(
+                        keyStore, x509KeyManager, "client-cert-1", null);
+
+        Exception exception = null;
+        try {
+            customAliasX509ExtendedKeyManager.chooseClientAlias(null, null, null);
+        } catch (final Exception ex) {
+            exception = ex;
+        }
+
+        assertEquals("keystore uninitialized", exception.getMessage());
+    }
+
+    @Test
     void getServerAliases_is_delegated() {
         final KeyStore keyStore = mock(KeyStore.class);
 
@@ -137,6 +163,31 @@ class CustomAliasX509ExtendedKeyManagerTest {
         }
 
         assertEquals("certificate with alias server-cert-1 not found", exception.getMessage());
+    }
+
+    @Test
+    void chooseServerAlias_throws_exception_if_keystore_is_not_initialized() throws Exception {
+        final KeyStore keyStore = mock(KeyStore.class);
+
+        doThrow(new RuntimeException("keystore uninitialized"))
+                .when(keyStore).containsAlias("server-cert-1");
+
+        final X509ExtendedKeyManager x509KeyManager = mock(X509ExtendedKeyManager.class);
+        when(x509KeyManager.chooseServerAlias(any(), any(), any())).thenReturn("server-cert-1");
+
+
+        final CustomAliasX509ExtendedKeyManager customAliasX509ExtendedKeyManager =
+                new CustomAliasX509ExtendedKeyManager(
+                        keyStore, x509KeyManager, null, "server-cert-1");
+
+        Exception exception = null;
+        try {
+            customAliasX509ExtendedKeyManager.chooseServerAlias(null, null, null);
+        } catch (final Exception ex) {
+            exception = ex;
+        }
+
+        assertEquals("keystore uninitialized", exception.getMessage());
     }
 
     @Test

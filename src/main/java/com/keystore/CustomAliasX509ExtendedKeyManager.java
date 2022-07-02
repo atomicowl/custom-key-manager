@@ -18,10 +18,10 @@ public class CustomAliasX509ExtendedKeyManager extends X509ExtendedKeyManager {
     private final String serverAlias;
 
     public CustomAliasX509ExtendedKeyManager(
-            final KeyStore keyStore,
-            final X509ExtendedKeyManager delegate,
-            final String clientAlias,
-            final String serverAlias
+        final KeyStore keyStore,
+        final X509ExtendedKeyManager delegate,
+        final String clientAlias,
+        final String serverAlias
     ) {
         this.keyStore = keyStore;
         this.delegate = delegate;

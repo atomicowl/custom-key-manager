@@ -28,8 +28,8 @@ class CustomAliasX509ExtendedKeyManagerTest {
         when(x509KeyManager.getClientAliases(any(), any())).thenReturn(certs);
 
         final CustomAliasX509ExtendedKeyManager customAliasX509ExtendedKeyManager =
-                new CustomAliasX509ExtendedKeyManager(
-                        keyStore, x509KeyManager, "client-cert-1", null);
+            new CustomAliasX509ExtendedKeyManager(
+                keyStore, x509KeyManager, "client-cert-1", null);
 
         final String[] actual = customAliasX509ExtendedKeyManager.getClientAliases(null, null);
         assertEquals(certs, actual);
@@ -44,8 +44,8 @@ class CustomAliasX509ExtendedKeyManagerTest {
         final X509ExtendedKeyManager x509KeyManager = mock(X509ExtendedKeyManager.class);
 
         final CustomAliasX509ExtendedKeyManager customAliasX509ExtendedKeyManager =
-                new CustomAliasX509ExtendedKeyManager(
-                        keyStore, x509KeyManager, "client-cert-1", null);
+            new CustomAliasX509ExtendedKeyManager(
+                keyStore, x509KeyManager, "client-cert-1", null);
 
         final String actual = customAliasX509ExtendedKeyManager.chooseClientAlias(null, null, null);
         assertEquals("client-cert-1", actual);
@@ -62,8 +62,8 @@ class CustomAliasX509ExtendedKeyManagerTest {
 
 
         final CustomAliasX509ExtendedKeyManager customAliasX509ExtendedKeyManager =
-                new CustomAliasX509ExtendedKeyManager(
-                        keyStore, x509KeyManager, "client-cert-1", null);
+            new CustomAliasX509ExtendedKeyManager(
+                keyStore, x509KeyManager, "client-cert-1", null);
 
         Exception exception = null;
         try {
@@ -80,15 +80,15 @@ class CustomAliasX509ExtendedKeyManagerTest {
         final KeyStore keyStore = mock(KeyStore.class);
 
         doThrow(new RuntimeException("keystore uninitialized"))
-                .when(keyStore).containsAlias("client-cert-1");
+            .when(keyStore).containsAlias("client-cert-1");
 
         final X509ExtendedKeyManager x509KeyManager = mock(X509ExtendedKeyManager.class);
         when(x509KeyManager.chooseEngineClientAlias(any(), any(), any())).thenReturn("client-cert-1");
 
 
         final CustomAliasX509ExtendedKeyManager customAliasX509ExtendedKeyManager =
-                new CustomAliasX509ExtendedKeyManager(
-                        keyStore, x509KeyManager, "client-cert-1", null);
+            new CustomAliasX509ExtendedKeyManager(
+                keyStore, x509KeyManager, "client-cert-1", null);
 
         Exception exception = null;
         try {
@@ -109,8 +109,8 @@ class CustomAliasX509ExtendedKeyManagerTest {
         when(x509KeyManager.getServerAliases(any(), any())).thenReturn(certs);
 
         final CustomAliasX509ExtendedKeyManager customAliasX509ExtendedKeyManager =
-                new CustomAliasX509ExtendedKeyManager(
-                        keyStore, x509KeyManager, "client-cert-1", null);
+            new CustomAliasX509ExtendedKeyManager(
+                keyStore, x509KeyManager, "client-cert-1", null);
 
         final String[] actual = customAliasX509ExtendedKeyManager.getServerAliases(null, null);
         assertEquals(certs, actual);
@@ -125,8 +125,8 @@ class CustomAliasX509ExtendedKeyManagerTest {
         final X509ExtendedKeyManager x509KeyManager = mock(X509ExtendedKeyManager.class);
 
         final CustomAliasX509ExtendedKeyManager customAliasX509ExtendedKeyManager =
-                new CustomAliasX509ExtendedKeyManager(
-                        keyStore, x509KeyManager, null, "server-cert-1");
+            new CustomAliasX509ExtendedKeyManager(
+                keyStore, x509KeyManager, null, "server-cert-1");
 
         final String actual = customAliasX509ExtendedKeyManager.chooseServerAlias(null, null, null);
         assertEquals("server-cert-1", actual);
@@ -143,8 +143,8 @@ class CustomAliasX509ExtendedKeyManagerTest {
 
 
         final CustomAliasX509ExtendedKeyManager customAliasX509ExtendedKeyManager =
-                new CustomAliasX509ExtendedKeyManager(
-                        keyStore, x509KeyManager, null, "server-cert-1");
+            new CustomAliasX509ExtendedKeyManager(
+                keyStore, x509KeyManager, null, "server-cert-1");
 
         Exception exception = null;
         try {
@@ -161,15 +161,15 @@ class CustomAliasX509ExtendedKeyManagerTest {
         final KeyStore keyStore = mock(KeyStore.class);
 
         doThrow(new RuntimeException("keystore uninitialized"))
-                .when(keyStore).containsAlias("server-cert-1");
+            .when(keyStore).containsAlias("server-cert-1");
 
         final X509ExtendedKeyManager x509KeyManager = mock(X509ExtendedKeyManager.class);
         when(x509KeyManager.chooseServerAlias(any(), any(), any())).thenReturn("server-cert-1");
 
 
         final CustomAliasX509ExtendedKeyManager customAliasX509ExtendedKeyManager =
-                new CustomAliasX509ExtendedKeyManager(
-                        keyStore, x509KeyManager, null, "server-cert-1");
+            new CustomAliasX509ExtendedKeyManager(
+                keyStore, x509KeyManager, null, "server-cert-1");
 
         Exception exception = null;
         try {
@@ -186,12 +186,12 @@ class CustomAliasX509ExtendedKeyManagerTest {
         final KeyStore keyStore = mock(KeyStore.class);
 
         final X509ExtendedKeyManager x509KeyManager = mock(X509ExtendedKeyManager.class);
-        final X509Certificate[] certs = { mock(X509Certificate.class), mock(X509Certificate.class) };
+        final X509Certificate[] certs = {mock(X509Certificate.class), mock(X509Certificate.class)};
         when(x509KeyManager.getCertificateChain(any())).thenReturn(certs);
 
         final CustomAliasX509ExtendedKeyManager customAliasX509ExtendedKeyManager =
-                new CustomAliasX509ExtendedKeyManager(
-                        keyStore, x509KeyManager, "client-cert-1", null);
+            new CustomAliasX509ExtendedKeyManager(
+                keyStore, x509KeyManager, "client-cert-1", null);
 
         final X509Certificate[] actual = customAliasX509ExtendedKeyManager.getCertificateChain(null);
         assertEquals(certs, actual);
@@ -206,8 +206,8 @@ class CustomAliasX509ExtendedKeyManagerTest {
         when(x509KeyManager.getPrivateKey(any())).thenReturn(certs);
 
         final CustomAliasX509ExtendedKeyManager customAliasX509ExtendedKeyManager =
-                new CustomAliasX509ExtendedKeyManager(
-                        keyStore, x509KeyManager, "client-cert-1", null);
+            new CustomAliasX509ExtendedKeyManager(
+                keyStore, x509KeyManager, "client-cert-1", null);
 
         final PrivateKey actual = customAliasX509ExtendedKeyManager.getPrivateKey(null);
         assertEquals(certs, actual);

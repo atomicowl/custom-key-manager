@@ -287,6 +287,7 @@ New Session Ticket post-handshake - Server -> Client
 Client -> Server: Client Hello
 return: Server Hello
 Server -> Client: EncryptedExtension
+Server -> Client: Certificate Request
 Server -> Client: Certificate
 Server -> Client: CertificateVerify
 Server -> Client: Finished

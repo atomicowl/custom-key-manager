@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -112,7 +113,13 @@ public class CustomAliasX509ExtendedKeyManagerSslConnectionTest {
             emptyKeyStore, EMPTY_PASSWORD, clientTrustStore, null);
 
         sslServer.start(0);
-        sslClient.sendMessage("localhost", sslServer.getActivePort(), "Hello");
+
+        Exception clientException = null;
+        try {
+            sslClient.sendMessage("localhost", sslServer.getActivePort(), "Hello");
+        } catch (final Exception ex) {
+            clientException = ex;
+        }
 
         //noinspection ResultOfMethodCallIgnored
         latch.await(10, TimeUnit.SECONDS);
@@ -122,6 +129,8 @@ public class CustomAliasX509ExtendedKeyManagerSslConnectionTest {
 
         assertEquals("javax.net.ssl.SSLHandshakeException: Empty client certificate chain",
             resultHolder.get().getError().toString());
+        assertEquals("javax.net.ssl.SSLHandshakeException: Received fatal alert: bad_certificate",
+            Objects.requireNonNull(clientException).getMessage());
     }
 
     @Test
@@ -237,7 +246,13 @@ public class CustomAliasX509ExtendedKeyManagerSslConnectionTest {
             clientKeyStore, EMPTY_PASSWORD, clientTrustStore, null);
 
         sslServer.start(0);
-        sslClient.sendMessage("localhost", sslServer.getActivePort(), "Hello");
+
+        Exception clientException = null;
+        try {
+            sslClient.sendMessage("localhost", sslServer.getActivePort(), "Hello");
+        } catch (final Exception ex) {
+            clientException = ex;
+        }
 
         //noinspection ResultOfMethodCallIgnored
         latch.await(10, TimeUnit.SECONDS);
@@ -247,6 +262,8 @@ public class CustomAliasX509ExtendedKeyManagerSslConnectionTest {
 
         assertEquals("PKIX path validation failed: java.security.cert.CertPathValidatorException: signature check failed",
             resultHolder.get().getError().getMessage());
+        assertEquals("javax.net.ssl.SSLHandshakeException: Received fatal alert: certificate_unknown",
+            Objects.requireNonNull(clientException).getMessage());
     }
 
     @Test
